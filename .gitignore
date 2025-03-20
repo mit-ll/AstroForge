@@ -55,3 +55,6 @@ MANIFEST
 
 # Other project specific items
 src/astroforge/coordinates/iers/data
+
+# Sphinx documentation
+docs/_build/
