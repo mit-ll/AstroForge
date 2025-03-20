@@ -4,7 +4,7 @@
 astropy>=5.3.1
 myst-parser[linkify]
 numba>=0.57.1
-numpy>=1.23.5
+numpy==1.26.4
 scipy>=1.11.1
 sphinx>=3.2.1
 sphinx_rtd_theme
