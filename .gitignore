@@ -58,3 +58,4 @@ src/astroforge/coordinates/iers/data
 
 # Sphinx documentation
 docs/_build/
+docs/_generated/
