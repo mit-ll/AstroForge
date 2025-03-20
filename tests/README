@@ -1,0 +1,4 @@
+# Copyright (c) 2024 Massachusetts Institute of Technology
+# SPDX-License-Identifier: MIT
+
+The AstroForge codebase is adapted from trusted MATLAB code. Many of the unit tests in this package check that the result for a pre-determined random input vector matches the output from the original MATLAB code.
