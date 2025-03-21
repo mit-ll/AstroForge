@@ -11,3 +11,4 @@ sphinx_rtd_theme
 pydata_sphinx_theme
 sphinx-design==0.5.0
 sphinx-tabs==3.4.4
+nbsphinx==0.9.7

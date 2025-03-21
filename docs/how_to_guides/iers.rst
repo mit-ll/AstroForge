@@ -6,7 +6,7 @@ The International Earth Rotation and Reference Systems Service (IERS) maintains 
 dataset of parameters that describe precisely how the Earth is oriented at any
 particular moment. AstroForge uses the IERS Bulletin A file for many coordinate
 conversion. You can find more information about this data on the 
-`IERS webpage <iers_info>`_, or download the data directly `here <bulletin_file>`_. 
+`IERS webpage`_, or `download the data directly`_. 
 
 In most circumstances, AstroForge users do not need to explicitly setup the IERS file.
 The first time AstroForge does a coordinate conversion that requires IERS data it will
@@ -74,7 +74,7 @@ Manually Download and Install
 If the automated process isn't working, you can try downloading and installing the IERS
 file yourself. The manual process isn't that different than the automated one. 
 
-First, download the `IERS file <bulletin_file>`_. Then, create the data directory:
+First, download the `IERS file`_. Then, create the data directory:
 ``$HOME/.astroforge/data`` on unix, or ``C:\Users\<USER>\.astroforge\data`` on windows.
 Place the newly downloaded IERS file in the data directory and create a symbolic link to
 it with the name ``current_IERS_file.txt``. On unix, these steps can be achieved with
@@ -103,8 +103,9 @@ these files, such as :func:`~astroforge.coordinates.polarmotion`:
     >>> print(x, y)
     0.108198 0.28807
 
-If none of these steps succeed, feel free to open a discussion about it on github
-<add reference>. 
+If none of these steps succeed, feel free to open a discussion about it on `AstroForge's discussion page`_. 
 
-.. _bulletin_file: https://datacenter.iers.org/data/9/finals2000A.all
-.. _iers_info: https://www.iers.org/IERS/EN/DataProducts/EarthOrientationData/eop.html
+.. _download the data directly: https://datacenter.iers.org/data/9/finals2000A.all
+.. _IERS file: https://datacenter.iers.org/data/9/finals2000A.all
+.. _IERS webpage: https://www.iers.org/IERS/EN/DataProducts/EarthOrientationData/eop.html
+.. _AstroForge's discussion page: https://github.com/mit-ll/AstroForge/discussions
