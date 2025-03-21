@@ -23,6 +23,23 @@ AstroForge exports a few useful constants:
     ss_GM
     c
 
+Moon and Sun Positions
+======================
+Given an input time in Modified Julian Date (MJD) format, AstroForge can 
+calculate the low fidelity positions of the sun and moon in GCRS or MEMED 
+coordinates:
+
+.. currentmodule:: astroforge.common
+
+.. autosummary::
+    :toctree: generated/
+
+    R_moon
+    R_moon_MEMED
+    R_sun
+    R_sun_MEMED
+
+
 Force Models
 ============
 
@@ -59,7 +76,8 @@ Propagators
 ===========
 
 The :func:`~astroforge.force_models.F_mp` and :func:`~astroforge.force_models.F_mp_srp`
-force models can be propagated directly with the following functions:
+force models can be propagated directly, or a custom force model can be used with 
+:func:`~astroforge.propagators.propagator`:
 
 .. currentmodule:: astroforge.propagators
 
@@ -68,6 +86,7 @@ force models can be propagated directly with the following functions:
     
     mp
     mp_srp
+    propagator
 
 Coordinate Conversions
 ======================
