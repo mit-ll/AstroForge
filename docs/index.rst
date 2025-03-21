@@ -1,6 +1,8 @@
 .. admonition:: Join the Discussion
 
-    Feel free to share ideas and ask questions over at <insert link>.
+    Feel free to share ideas and ask questions over at `AstroForge's discussion page`_.
+
+    .. _AstroForge's discussion page: https://github.com/mit-ll/AstroForge/discussions
 
 ========================================
 Welcome to AstroForge's documentation!
@@ -57,7 +59,7 @@ Propagating the Orbit
 
 We can propagate that orbital state using a medium-fidelity propagator within
 AstroForge. Alternatively, you can write your own force model and provide that as the
-first argument to ``astroforge.propagators.propagator``, see <ref> for details.
+first argument to ``astroforge.propagators.propagator``.
 
 .. tab-set::
 
@@ -149,6 +151,5 @@ Documentation Contents
 .. toctree::
     :maxdepth: 2
 
-    Overview <readme>
     How-To Guides <how_to_guides>
     Reference <reference>

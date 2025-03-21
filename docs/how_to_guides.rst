@@ -2,7 +2,8 @@
 How-To Guides
 =============
 
-We're going to write some how-to guides and put them here.
+These how-to guides provide step-by-step examples demonstrating 
+some of AstroForge's key functionality.
 
 .. toctree::
     :maxdepth: 1
