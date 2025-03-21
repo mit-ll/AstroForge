@@ -127,18 +127,19 @@ copyright = "2023, Massachusetts Institute of Technology"
 # If you don’t need the separation provided between version and release,
 # just set them both to the same value.
 
-# TODO(jdv): uncomment this when we publish
-# >>>>>>>>>>
-# try:
-#     from astroforge import __version__ as version
-# except ImportError:
-#     version = ""
-version = "0.1"
+try:
+    from astroforge import __version__ as version
+
+    v_split = version.split(".")
+    version = f"{v_split[0]}.{v_split[1]}"
+    release = f"{v_split[0]}.{v_split[1]}.{v_split[2]}"
+except ImportError:
+    version = ""
+    release = ""
 
 # if not version or version.lower() == "unknown":
 #     version = os.getenv("READTHEDOCS_VERSION", "unknown")  # automatically set by RTD
 
-release = version
 # >>>>>>>>>>
 
 
