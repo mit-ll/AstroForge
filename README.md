@@ -32,7 +32,8 @@ For details on how to use the various features of `AstroForge`, we recommend fol
 
 Please use this DOI number reference, published on [Zenodo](https://zenodo.org), when citing the software:
 
-**ONCE REPO IS PUBLIC, ZENODO DOI WILL GO HERE**
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15066088.svg)](https://doi.org/10.5281/zenodo.15066088)
+
 
 ## Note
 
