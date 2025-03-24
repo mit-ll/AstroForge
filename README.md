@@ -28,12 +28,13 @@ pip install .
 
 For details on how to use the various features of `AstroForge`, we recommend following the Jupyter notebooks in the `examples/` directory.
 
+You can also read the project's documentation [here](https://astroforge.readthedocs.io/en/latest/).
+
 ## Citation
 
 Please use this DOI number reference, published on [Zenodo](https://zenodo.org), when citing the software:
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15066088.svg)](https://doi.org/10.5281/zenodo.15066088)
-
 
 ## Note
 
@@ -47,9 +48,9 @@ DISTRIBUTION STATEMENT A. Approved for public release. Distribution is unlimited
 Research was sponsored by the United States Air Force Research Laboratory and the United
 States Air Force Artificial Intelligence Accelerator and was accomplished under Cooperative
 Agreement Number FA8750-19-2-1000. The views and conclusions contained in this document
-are those of the authors and should not be interpreted as representing the official 
-policies, eitherexpressed or implied, of the United States Air Force or the U.S. 
-Government. The U.S.Government is authorized to reproduce and distribute reprints 
+are those of the authors and should not be interpreted as representing the official
+policies, eitherexpressed or implied, of the United States Air Force or the U.S.
+Government. The U.S.Government is authorized to reproduce and distribute reprints
 for Government purposes notwithstanding any copyright notation herein.
 
 © 2024 Massachusetts Institute of Technology.
