@@ -24,6 +24,13 @@ From this repository's top-level directory, run the command
 pip install .
 ```
 
+## Optional Dependencies
+
+To run the example Jupyter notebooks, you'll need to install the following optional dependencies:
+
+- `jupyter`
+- `matplotlib`
+
 ## Usage
 
 For details on how to use the various features of `AstroForge`, we recommend following the Jupyter notebooks in the `examples/` directory.
