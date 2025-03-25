@@ -17,11 +17,16 @@
 AstroForge is meant to be used for satellite state propagation and the computation of observations from ground-based or space-based sensors. Precise orbit fitting requires pristine knowledge of the observer’s site location in inertial coordinates, which in turn requires methodical handling of coordinate systems and the conversions between them. The goal of AstroForge is to make all of this **easy**.
 
 ## Installation
-
-From this repository's top-level directory, run the command
+AstroForge is available on PyPI:
 
 ```console
-pip install .
+pip install AstroForge
+```
+
+To install from source, clone this repository and run the following command from its top-level directory:
+
+```console
+pip install -e .
 ```
 
 ## Usage
