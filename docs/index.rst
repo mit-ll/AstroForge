@@ -14,6 +14,25 @@ orbit fitting requires pristine knowledge of the observer's site location in ine
 which in turn requires methodical handling of coordinate systems and the conversions between them.
 As such, much of this library is devoted to coordinate conversions.
 
+Installation
+============
+
+AstroForge is available on PyPI:
+
+.. code:: console
+
+   $ pip install AstroForge
+
+To install from source, clone the `AstroForge repository`_ and run the following command from 
+its top-level directory:
+
+.. _AstroForge repository: https://github.com/mit-ll/AstroForge
+
+.. code:: console
+
+   $ pip install -e .
+
+
 Example Usage
 =============
 Let's start with a simple example of propagating a satellite in Low Earth Orbit (LEO) and computing
