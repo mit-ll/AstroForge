@@ -48,7 +48,8 @@ def F_mp(
     ydot : NDArray[np.float64]
         Derivate of the state vector.
     """
-    x, v = np.split(y, 2)
+    x = y[:3]
+    v = y[3:]
     mjd = t / 86400.0
 
     rm = R_moon(mjd)
@@ -56,7 +57,10 @@ def F_mp(
 
     acc = F_J2(x) + F_third(x, rm, GM_moon) + F_third(x, rs, GM_sun)
 
-    ydot = np.hstack((v, acc))
+    ydot = np.empty(6)
+    ydot[:3] = v
+    ydot[3:] = acc
+
 
     return ydot
 
@@ -113,8 +117,10 @@ def F_mp_srp(
     """
     mjd = time / 86400.0
 
-    x, v, alpha = np.split(xxdot, 3)
-
+    x = xxdot[:3]
+    v = xxdot[3:6]
+    alpha = xxdot[6:]
+    
     Rm = R_moon_MEMED(mjd)
     Rs = R_sun_MEMED(mjd)
 
@@ -126,7 +132,12 @@ def F_mp_srp(
 
     acc = F_geo_MEMED(mjd, x) + F_third(x, Rm, GM_moon) + F_third(x, Rs, GM_sun) + a
     jerk = np.zeros(3)
-    ydot = np.hstack((v, acc, jerk))
+
+    ydot = np.empty(9)
+    ydot[:3] = v
+    ydot[3:6] = acc
+    ydot[6:] = jerk
+
     return ydot
 
 
@@ -155,11 +166,14 @@ def kepler(t: float, y: NDArray[np.float64]) -> NDArray[np.float64]:
         Derivative of the state vector.
     """
 
-    x, v = np.split(y, 2)
+    x = y[:3]
+    v = y[3:]
 
     r3 = np.sqrt(np.sum(x**2, axis=0)) ** 3
     acc = -GM * x / r3
 
-    ydot = np.hstack((v, acc))
+    ydot = np.empty(6)
+    ydot[:3] = v
+    ydot[3:] = acc
 
     return ydot
