@@ -36,11 +36,6 @@ Please use this DOI number reference, published on [Zenodo](https://zenodo.org),
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15066088.svg)](https://doi.org/10.5281/zenodo.15066088)
 
-## Note
-
-This project has been set up using PyScaffold 4.5. For details and usage
-information on PyScaffold see https://pyscaffold.org/.
-
 ## Disclaimer
 
 DISTRIBUTION STATEMENT A. Approved for public release. Distribution is unlimited.

@@ -1,9 +1,54 @@
-[build-system]
-# AVOID CHANGING REQUIRES: IT WILL BE UPDATED BY PYSCAFFOLD!
-requires = ["setuptools>=46.1.0", "setuptools_scm[toml]>=5"]
-build-backend = "setuptools.build_meta"
+[project]
+name = "AstroForge"
+version = "0.2.0"
+description = "A Python library of astrodynamics tools"
+readme = "README.md"
+authors = [
+    { name = "Jake Varey", email = "jakevarey@gmail.com" },
+	{ name = "Michael Tierney", email = "michael.kotson@ll.mit.edu" }
+]
+requires-python = ">=3.12"
+dependencies = [
+	"astropy",
+	"numpy",
+	"numba",
+	"scipy",
+	"requests",
+]
+license = "MIT"
+license-files = ["LICENSE.txt"]
+keywords = ["astrodynamics", "space"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Programming Language :: Python :: 3",
+	"Programming Language :: Python :: 3.12",
+	"Programming Language :: Python :: 3.13",
+	"Programming Language :: Python :: 3.14",
+]
 
-[tool.setuptools_scm]
-# For smarter version schemes and other configuration options,
-# check out https://github.com/pypa/setuptools_scm
-version_scheme = "no-guess-dev"
+[project.urls]
+Documentation = "https://astroforge.readthedocs.io/en/latest/"
+Repository = "https://github.com/mit-ll/AstroForge"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+    "linkify-it-py>=2.0.3",
+    "myst-parser>=4.0.1",
+    "nbsphinx>=0.9.6",
+    "pre-commit>=4.3.0",
+    "pydata-sphinx-theme>=0.16.1",
+    "pytest>=8.4.2",
+    "pytest-cov>=7.0.0",
+    "sphinx>=8.2.3",
+    "sphinx-design>=0.6.1",
+    "tox>=4.30.2",
+]
+
+[tool.pytest.ini_options]
+addopts = "--cov astroforge --cov-report term-missing --verbose"
+testpaths = ["tests"]
+
