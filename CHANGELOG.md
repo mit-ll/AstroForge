@@ -6,3 +6,4 @@
 - Replaced call to `astropy` for converting geocentric cartesian coordinates
   to geodetic latitude/longitude/altitude with the algorithm implemented in
   https://github.com/liberfa/erfa. Removed `astropy` as a dependency.
+- Set default `atol` and `rtol` in `solve_ivp` to 1e-9 for both.
