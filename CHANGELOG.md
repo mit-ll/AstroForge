@@ -1,5 +1,8 @@
 # Changelog
 
-## Version 0.3 (development)
+## Version 0.2 (development)
 - Modified `pyproject.toml` to use `uv` for package management
 - Removed `setup.cfg` and `setup.py`
+- Replaced call to `astropy` for converting geocentric cartesian coordinates
+  to geodetic latitude/longitude/altitude with the algorithm implemented in
+  https://github.com/liberfa/erfa. Removed `astropy` as a dependency.
