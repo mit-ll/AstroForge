@@ -5,8 +5,6 @@ import warnings
 from typing import Callable, Tuple
 
 import numpy as np
-from astropy import coordinates
-from astropy import units as u
 from numba import njit
 from numpy import pi
 from numpy.typing import NDArray
@@ -91,6 +89,7 @@ def CIRSToMEMED(
     return Y
 
 
+@njit
 def CIRSToTETED(
     time: float,
     X: NDArray[np.float64],
@@ -245,6 +244,7 @@ def ITRSToTIRS(
     return Y
 
 
+@njit
 def ITRSToTETED(
     time: float,
     X: NDArray[np.float64],
@@ -295,6 +295,7 @@ def ITRSToTETED(
         return Y
 
 
+@njit
 def ITRSToLatLonAlt(
     z: NDArray[np.float64],
 ) -> Tuple[float, float, float]:
@@ -323,9 +324,70 @@ def ITRSToLatLonAlt(
 
     """
 
-    s = coordinates.EarthLocation(z[0] * u.km, z[1] * u.km, z[2] * u.km)
-    loc = s.to_geodetic()
-    return (loc.lat.degree, loc.lon.degree, loc.height.value)
+    # almost a direct copy from https://github.com/liberfa/erfa `gc2gd`
+    # WGS84 parameters
+    R_earth = 6378.137  # equatorial radius
+    f = 1 / 298.257223563  # flattening
+
+    # Functions of ellipsoid parameters (with further validation of f)
+    aeps2 = R_earth**2 * 1e-32
+    e2 = (2.0 - f) * f
+    e4t = e2**2 * 1.5
+    ec2 = 1.0 - e2
+    assert ec2 > 0, "Invalid WGS84 parameters"
+    ec = np.sqrt(ec2)
+    b = R_earth * ec
+
+    # cartesian components
+    x, y, z = z
+
+    # distance from polar axis squared
+    p2 = x**2 + y**2
+
+    # longitude
+    lon = np.arctan2(y, x) if p2 > 0.0 else 0.0
+
+    # unsigned z-coordinate
+    absz = np.abs(z)
+
+    if p2 > aeps2:
+        # distance from polar axis
+        p = np.sqrt(p2)
+
+        # normalization
+        s0 = absz / R_earth
+        pn = p / R_earth
+        zc = ec * s0
+
+        # prepare Newton correction factors
+        c0 = ec * pn
+        c02 = c0**2
+        c03 = c02 * c0
+        s02 = s0**2
+        s03 = s02 * s0
+        a02 = c02 + s02
+        a0 = np.sqrt(a02)
+        a03 = a02 * a0
+        d0 = zc * a03 + e2 * s03
+        f0 = pn * a03 - e2 * c03
+
+        # prepare Halley correction factors
+        b0 = e4t * s02 * c02 * pn * (a0 - ec)
+        s1 = d0 * f0 - b0 * s0
+        cc = ec * (f0**2 - b0 * c0)
+
+        # evaluate latitude and height
+        lat = np.arctan(s1 / cc)
+        s12 = s1**2
+        cc2 = cc**2
+        height = (p * cc + absz * s1 - R_earth * np.sqrt(ec2 * s12 + cc2)) / np.sqrt(
+            s12 + cc2
+        )
+    else:
+        lat = np.pi / 2.0
+        height = absz - b
+
+    return lat * 180 / np.pi, lon * 180 / np.pi, height
 
 
 @njit
@@ -710,6 +772,7 @@ def SEZToAzElRange(
     return az, el, r
 
 
+@njit
 def TETEDToCIRS(
     time: float,
     X: NDArray[np.float64],
