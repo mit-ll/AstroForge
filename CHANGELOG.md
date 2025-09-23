@@ -8,3 +8,4 @@
   https://github.com/liberfa/erfa. Removed `astropy` as a dependency.
 - Set default `atol` and `rtol` in `solve_ivp` to 1e-9 for both.
 - Remove unnecessary dimension on output of `keplerian_to_cartesian`
+- Fix failing `test_ea_from_ma_divergence` test

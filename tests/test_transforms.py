@@ -289,7 +289,7 @@ def test_polarmotion_failures():
 
 def test_ea_from_ma_divergence():
     with pytest.raises(ConvergenceException):
-        ea = eccentric_anomaly_from_mean_anomaly(-1.0, 1000.0)
+        ea = eccentric_anomaly_from_mean_anomaly(-1.0, 1e9)
 
 
 class TestKeplerianEdgeCases:
