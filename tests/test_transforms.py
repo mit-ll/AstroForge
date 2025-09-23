@@ -219,8 +219,8 @@ def test_cartesian_keplerian():
         measured_val = keplerian_elements[key]
         np.testing.assert_almost_equal(true_val, measured_val, decimal=3)
 
-    np.testing.assert_allclose(x_measured[0], pos)
-    np.testing.assert_allclose(v_measured[0], vel)
+    np.testing.assert_allclose(x_measured, pos)
+    np.testing.assert_allclose(v_measured, vel)
 
 
 def test_cartesian_keplerian_zero():

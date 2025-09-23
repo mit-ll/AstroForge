@@ -1097,9 +1097,8 @@ def keplerian_to_cartesian(
     a31 = so * si
     a32 = co * si
 
-    X = np.vstack([a11 * rx + a12 * ry, a21 * rx + a22 * ry, a31 * rx + a32 * ry]).T
-
-    V = np.vstack([a11 * vx + a12 * vy, a21 * vx + a22 * vy, a31 * vx + a32 * vy]).T
+    X = np.array([a11 * rx + a12 * ry, a21 * rx + a22 * ry, a31 * rx + a32 * ry])
+    V = np.array([a11 * vx + a12 * vy, a21 * vx + a22 * vy, a31 * vx + a32 * vy])
 
     return X, V
 
