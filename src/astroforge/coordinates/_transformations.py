@@ -49,6 +49,7 @@ __all__ = [
     "eccentric_anomaly_from_true_anomaly",
     "eccentric_anomaly_from_mean_anomaly",
     "ConvergenceException",
+    "PrecisionWarning",
 ]
 
 

@@ -40,6 +40,7 @@ from astroforge.coordinates import (
     eccentric_anomaly_from_true_anomaly,
     mean_anomaly_from_true_anomaly,
     ConvergenceException,
+    PrecisionWarning,
 )
 
 # disable numba's jit
@@ -309,7 +310,8 @@ def test_cartesian_keplerian_zero():
         "true_anomaly_rad": 1.126627,
     }
 
-    keplerian_elements = cartesian_to_keplerian(pos, vel)
+    with pytest.warns(PrecisionWarning):
+        keplerian_elements = cartesian_to_keplerian(pos, vel)
 
     for key, true_val in truth.items():
         measured_val = keplerian_elements[key]
@@ -364,6 +366,8 @@ def test_ea_from_ma_divergence():
 
 
 class TestKeplerianEdgeCases:
+
+    @pytest.mark.filterwarnings("ignore:.*")
     def test_zero_raan(self):
         pos = np.array([1, 0, 0])
         vel = np.array([1, 0, 0])
@@ -371,6 +375,7 @@ class TestKeplerianEdgeCases:
 
         assert kep["raan_rad"] < 1e-6
 
+    @pytest.mark.filterwarnings("ignore:.*")
     def test_wrapped_raan(self):
         pos = np.array([0, -1, 0])
         vel = np.array([0, 0, 1])
@@ -379,6 +384,7 @@ class TestKeplerianEdgeCases:
         assert kep["raan_rad"] >= 0
         assert kep["raan_rad"] <= 2 * np.pi
 
+    @pytest.mark.filterwarnings("ignore:.*")
     def test_true_anom_sign(self):
         pos = np.array([1, 0, 0])
         vel = np.array([-1, 0, 0])
@@ -387,6 +393,7 @@ class TestKeplerianEdgeCases:
         assert kep["true_anomaly_rad"] >= 0
         assert kep["true_anomaly_rad"] <= 2 * np.pi
 
+    @pytest.mark.filterwarnings("ignore:.*")
     def test_dot_overcalc(self):
         """Make sure everything works properly even if dot products
         overshoot calculations due to floating point issues."""

@@ -50,4 +50,6 @@ dev = [
 [tool.pytest.ini_options]
 addopts = "--cov astroforge --cov-report term-missing --verbose"
 testpaths = ["tests"]
-
+markers = [
+    "download: marks tests as requiring an internet connection for downloading a file",
+]
