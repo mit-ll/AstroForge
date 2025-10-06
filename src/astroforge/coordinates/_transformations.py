@@ -14,8 +14,15 @@ from ._base_rotations import Rx, Ry, Rz
 from ._utilities import nutate, polarmotion
 
 __all__ = [
+    "AzElRangeToSEZ",
+    "CIRSToGCRS",
     "CIRSToMEMED",
     "CIRSToTETED",
+    "GCRSToCIRS",
+    "GCRSToITRS",
+    "GCRSToMEMED",
+    "GCRSToTETED",
+    "ITRSToGCRS",
     "ITRSToMEMED",
     "ITRSToTIRS",
     "ITRSToTETED",
@@ -23,12 +30,16 @@ __all__ = [
     "ITRSToSEZ",
     "LatLonAltToITRS",
     "MEMEDToCIRS",
+    "MEMEDToGCRS",
     "MEMEDToITRS",
     "PosVelConversion",
     "PosVelToFPState",
     "SEZToAzElRange",
+    "TEMEDToTETED",
     "TETEDToCIRS",
+    "TETEDToGCRS",
     "TETEDToITRS",
+    "TETEDToTEMED",
     "TIRSToITRS",
     "cartesian_to_keplerian",
     "keplerian_to_cartesian",
@@ -47,6 +58,86 @@ class ConvergenceException(Exception):
 
 class PrecisionWarning(UserWarning):
     pass
+
+
+@njit
+def AzElRangeToSEZ(az: float, el: float, rho: float) -> NDArray[np.float64]:
+    """Converts azimuth, elevation, and range to a cartesian vector in the South, East,
+    Zenith (SEZ) coordinate system.
+
+    Args:
+        az (float): Azimuth, deg
+        el (float): Elevation, deg
+        rho (float): Slant range, km
+
+    Returns:
+        NDArray[np.float64]: Shape (3,) cartesian vector in the SEZ coordinate system
+    """
+    return rho * np.array(
+        [
+            np.cos(np.radians(180 - az)) * np.cos(np.radians(el)),
+            np.sin(np.radians(180 - az)) * np.cos(np.radians(el)),
+            np.sin(np.radians(el)),
+        ]
+    )
+
+
+@njit
+def CIRSToGCRS(time: float, X: NDArray[np.float64]) -> NDArray[np.float64]:
+    """Converts a cartesian vector from the Celestial Intermediate Reference System (CIRS)
+    to the Geocentric Celestial Reference System (GCRS) See `Kaplan (2005) <Kaplan>`_ for
+    more information.
+
+    Args:
+        time (float): Time of the coordinate transformation, expressed as a MJD in
+        the UT1 time system.
+        X (NDArray[np.float64]): Shape (3,) cartesian vector to transform
+
+    Returns:
+        NDArray[np.float64]: Transformed vector, shape (3,)
+    """
+
+    T = time - 51544.5
+
+    # Right now, just including precession and not nutation.
+    eps0 = (pi / (180 * 3600)) * 84381.406
+    psi = (pi / (180 * 3600)) * (
+        5038.481507 * (T / 36525)
+        - 1.0790069 * (T / 36525) ** 2
+        - 0.00114045 * (T / 36525) ** 3
+        + 0.000132851 * (T / 36525) ** 4
+        - 0.0000000951 * (T / 36525) ** 5
+    )
+    omega = eps0 + (pi / (180 * 3600)) * (
+        -0.025754 * (T / 36525)
+        + 0.0512623 * (T / 36525) ** 2
+        - 0.00772503 * (T / 36525) ** 3
+        - 0.000000467 * (T / 36525) ** 4
+        + 0.0000003337 * (T / 36525) ** 5
+    )
+
+    s1, c1 = np.sin(eps0), np.cos(eps0)
+    s2, c2 = np.sin(-psi), np.cos(-psi)
+    s3, c3 = np.sin(-omega), np.cos(-omega)
+
+    x = s2 * s3
+    y = -s3 * c2 * c1 - s1 * c3
+    z = -s3 * c2 * s1 + c3 * c1
+
+    b = 1 / (1 + z)
+
+    Y = (
+        np.array(
+            [
+                [1 - b * x**2, -b * x * y, -x],
+                [-b * x * y, 1 - b * y**2, -y],
+                [x, y, 1 - b * (x**2 + y**2)],
+            ]
+        ).T
+        @ X
+    )
+
+    return Y
 
 
 @njit
@@ -172,6 +263,221 @@ def CIRSToTETED(
     )
 
     Y = Rz(epsilon) @ X
+    return Y
+
+
+@njit
+def GCRSToCIRS(time: float, X: NDArray[np.float64]) -> NDArray[np.float64]:
+    """Converts a vector from Geocentric Celestial Reference System (GCRS) to
+    Celestial Intermediate Reference System (CIRS).
+
+    Args:
+        time (float): Time of coordinate transform, expressed as a Modified Julian Date
+        in the UT1 time system
+        X (NDArray[np.float64]): Vector of shape (3,) to be transformed
+
+    Returns:
+        NDArray[np.float64]: Transformed vector, shape: (3,)
+    """
+
+    T = time - 51544.5
+
+    #  CIO locator.  IERS Conventions (2003), Table 5.2c.  Accurate to 0.5 uas
+    #  during the interval 1975 to 2025.
+
+    #  Right now, just including precession and not nutation.
+    eps0 = (pi / (180 * 3600)) * 84381.406
+    psi = (pi / (180 * 3600)) * (
+        5038.481507 * (T / 36525)
+        - 1.0790069 * (T / 36525) ** 2
+        - 0.00114045 * (T / 36525) ** 3
+        + 0.000132851 * (T / 36525) ** 4
+        - 0.0000000951 * (T / 36525) ** 5
+    )
+    omega = eps0 + (pi / (180 * 3600)) * (
+        -0.025754 * (T / 36525)
+        + 0.0512623 * (T / 36525) ** 2
+        - 0.00772503 * (T / 36525) ** 3
+        - 0.000000467 * (T / 36525) ** 4
+        + 0.0000003337 * (T / 36525) ** 5
+    )
+
+    s1, c1 = np.sin(eps0), np.cos(eps0)
+    s2, c2 = np.sin(-psi), np.cos(-psi)
+    s3, c3 = np.sin(-omega), np.cos(-omega)
+
+    x = s2 * s3
+    y = -s3 * c2 * c1 - s1 * c3
+    z = -s3 * c2 * s1 + c3 * c1
+
+    b = 1 / (1 + z)
+
+    Y = (
+        np.array(
+            [
+                [1 - b * x**2, -b * x * y, -x],
+                [-b * x * y, 1 - b * y**2, -y],
+                [x, y, 1 - b * (x**2 + y**2)],
+            ]
+        )
+        @ X
+    )
+
+    return Y
+
+
+@njit
+def GCRSToITRS(time: float, X: NDArray[np.float64]) -> NDArray[np.float64]:
+    """Converts a vector from Geocentric Celestial Reference System (GCRS) to
+    International Terrestrial Reference System (ITRS).
+
+    Args:
+        time (float): Time of coordinate transform, expressed as a Modified Julian Date
+        in the UT1 time system
+        X (NDArray[np.float64]): Vector of shape (3,) to be transformed
+
+    Returns:
+        NDArray[np.float64]: Transformed vector, shape: (3,)
+    """
+    omega = 1.00273781191135448  # rev/day
+    T = time - 51544.5
+
+    #  GCRSToCIRS (bias, precession, nutation)
+
+    X1 = GCRSToTETED(time, X)
+    X2 = TETEDToCIRS(time, X1)
+
+    #  CIRSToTIRS (earth rotation angle)
+    angle = 2 * pi * (0.7790572732640 + omega * T)
+
+    X3 = Rz(angle) @ X2
+
+    #  TIRSToITRS (polar motion)
+    Y = TIRSToITRS(time, X3)
+
+    return Y
+
+
+@njit
+def GCRSToMEMED(time, X):
+    """Converts a vector from Geocentric Celestial Reference System (GCRS) to
+    the Mean Equator Mean Equinox of Date (MEMED) coordinate frame.
+
+    Args:
+        time (float): Time of coordinate transform, expressed as a Modified Julian Date
+        in the UT1 time system
+        X (NDArray[np.float64]): Vector of shape (3,) to be transformed
+
+    Returns:
+        NDArray[np.float64]: Transformed vector, shape: (3,)
+    """
+    T = time - 51544.5
+
+    #  GCRSToMEMED (precession)
+    zeta = (pi / (180 * 3600)) * (
+        2.650545
+        + 2306.083227 * (T / 36525)
+        + 0.2988499 * (T / 36525) ** 2
+        + 0.01801828 * (T / 36525) ** 3
+        - 0.000005971 * (T / 36525) ** 4
+        - 0.0000003173 * (T / 36525) ** 5
+    )
+    z = (pi / (180 * 3600)) * (
+        -2.650545
+        + 2306.077181 * (T / 36525)
+        + 1.0927348 * (T / 36525) ** 2
+        + 0.01826837 * (T / 36525) ** 3
+        - 0.000028596 * (T / 36525) ** 4
+        - 0.0000002904 * (T / 36525) ** 5
+    )
+    theta = (pi / (180 * 3600)) * (
+        2004.191903 * (T / 36525)
+        - 0.4294934 * (T / 36525) ** 2
+        - 0.04182264 * (T / 36525) ** 3
+        - 0.000007089 * (T / 36525) ** 4
+        - 0.0000001274 * (T / 36525) ** 5
+    )
+
+    Y = Rz(-z) @ Ry(theta) @ Rz(-zeta) @ X
+
+    return Y
+
+
+@njit
+def GCRSToTETED(time, X):
+    """Converts a vector from Geocentric Celestial Reference System (GCRS) to
+    the True Equator True Equinox of Date (TETED) coordinate frame.
+
+    Args:
+        time (float): Time of coordinate transform, expressed as a Modified Julian Date
+        in the UT1 time system
+        X (NDArray[np.float64]): Vector of shape (3,) to be transformed
+
+    Returns:
+        NDArray[np.float64]: Transformed vector, shape: (3,)
+    """
+    T = time - 51544.5
+
+    #  GCRSToMEMED (precession)
+    zeta = (pi / (180 * 3600)) * (
+        2.650545
+        + 2306.083227 * (T / 36525)
+        + 0.2988499 * (T / 36525) ** 2
+        + 0.01801828 * (T / 36525) ** 3
+        - 0.000005971 * (T / 36525) ** 4
+        - 0.0000003173 * (T / 36525) ** 5
+    )
+    z = (pi / (180 * 3600)) * (
+        -2.650545
+        + 2306.077181 * (T / 36525)
+        + 1.0927348 * (T / 36525) ** 2
+        + 0.01826837 * (T / 36525) ** 3
+        - 0.000028596 * (T / 36525) ** 4
+        - 0.0000002904 * (T / 36525) ** 5
+    )
+    theta = (pi / (180 * 3600)) * (
+        2004.191903 * (T / 36525)
+        - 0.4294934 * (T / 36525) ** 2
+        - 0.04182264 * (T / 36525) ** 3
+        - 0.000007089 * (T / 36525) ** 4
+        - 0.0000001274 * (T / 36525) ** 5
+    )
+
+    #  Apply Scott Wickett's implemetation of the nutation matrix
+    (_, _, _, nutation_matrix) = nutate(time)
+
+    #  Combine
+    Y = nutation_matrix @ Rz(-z) @ Ry(theta) @ Rz(-zeta) @ X
+
+    return Y
+
+
+@njit
+def ITRSToGCRS(time, X):
+    """Converts a vector from the International Terrestrial Reference System (ITRS) to
+    the Geocentric Celestrial Reference System (GCRS).
+
+    Args:
+        time (float): Time of coordinate transform, expressed as a Modified Julian Date
+        in the UT1 time system
+        X (NDArray[np.float64]): Vector of shape (3,) to be transformed
+
+    Returns:
+        NDArray[np.float64]: Transformed vector, shape: (3,)
+    """
+    omega = 1.00273781191135448  # rev/day
+    T = time - 51544.5
+
+    #  ITRSToTIRS (polar motion)
+    X3 = ITRSToTIRS(time, X)
+    #  TIRSToCIRS (earth rotation angle)
+    #  CIRSToGCRS (bias, precession, nutation)
+    angle = 2 * pi * (0.7790572732640 + omega * T)
+
+    X2 = Rz(-angle) @ X3
+    X1 = CIRSToTETED(time, X2)
+    Y = TETEDToGCRS(time, X1)
+
     return Y
 
 
@@ -383,7 +689,7 @@ def ITRSToLatLonAlt(
         height = (p * cc + absz * s1 - R_earth * np.sqrt(ec2 * s12 + cc2)) / np.sqrt(
             s12 + cc2
         )
-    else:
+    else:  # pragma: no cover
         lat = np.pi / 2.0
         height = absz - b
 
@@ -510,6 +816,50 @@ def MEMEDToCIRS(
     )
 
     Y = Rz(-epsilon) @ X
+    return Y
+
+
+@njit
+def MEMEDToGCRS(time, X):
+    """Converts a vector from the Mean Equator Mean Equinox of Date (MEMED) coordinate frame
+    to Geocentric Celestial Reference System (GCRS).
+
+    Args:
+        time (float): Time of coordinate transform, expressed as a Modified Julian Date
+        in the UT1 time system
+        X (NDArray[np.float64]): Vector of shape (3,) to be transformed
+
+    Returns:
+        NDArray[np.float64]: Transformed vector, shape: (3,)
+    """
+    T = time - 51544.5
+
+    #  GCRSToMEMED (precession)
+    zeta = (pi / (180 * 3600)) * (
+        2.650545
+        + 2306.083227 * (T / 36525)
+        + 0.2988499 * (T / 36525) ** 2
+        + 0.01801828 * (T / 36525) ** 3
+        - 0.000005971 * (T / 36525) ** 4
+        - 0.0000003173 * (T / 36525) ** 5
+    )
+    z = (pi / (180 * 3600)) * (
+        -2.650545
+        + 2306.077181 * (T / 36525)
+        + 1.0927348 * (T / 36525) ** 2
+        + 0.01826837 * (T / 36525) ** 3
+        - 0.000028596 * (T / 36525) ** 4
+        - 0.0000002904 * (T / 36525) ** 5
+    )
+    theta = (pi / (180 * 3600)) * (
+        2004.191903 * (T / 36525)
+        - 0.4294934 * (T / 36525) ** 2
+        - 0.04182264 * (T / 36525) ** 3
+        - 0.000007089 * (T / 36525) ** 4
+        - 0.0000001274 * (T / 36525) ** 5
+    )
+
+    Y = Rz(zeta) @ Ry(-theta) @ Rz(z) @ X
     return Y
 
 
@@ -773,6 +1123,30 @@ def SEZToAzElRange(
 
 
 @njit
+def TEMEDToTETED(time, X):
+    """Converts a vector from the True Equator Mean Equinox of Date (TEMED) coordinate frame
+    to True Equator True Equinox of Date (TETED) coordinate frame.
+
+    Args:
+        time (float): Time of coordinate transform, expressed as a Modified Julian Date
+        in the UT1 time system
+        X (NDArray[np.float64]): Vector of shape (3,) to be transformed
+
+    Returns:
+        NDArray[np.float64]: Transformed vector, shape: (3,)
+    """
+
+    # Apply Scott Wickett's implemetation of the nutation matrix
+    (dpsi, deps, true_oblq, _) = nutate(time)
+    ang = dpsi * np.cos(true_oblq - deps)
+
+    # Combine
+    Y = Rz(-ang) @ X
+
+    return Y
+
+
+@njit
 def TETEDToCIRS(
     time: float,
     X: NDArray[np.float64],
@@ -897,6 +1271,79 @@ def TETEDToITRS(
 
     #  TIRSToITRS (polar motion)
     Y = TIRSToITRS(time, X3)
+
+    return Y
+
+
+@njit
+def TETEDToGCRS(time, X):
+    """Converts a vector from the True Equator True Equinox of Date (TETED) coordinate frame
+    to Geocentric Celestial Reference System (GCRS).
+
+    Args:
+        time (float): Time of coordinate transform, expressed as a Modified Julian Date
+        in the UT1 time system
+        X (NDArray[np.float64]): Vector of shape (3,) to be transformed
+
+    Returns:
+        NDArray[np.float64]: Transformed vector, shape: (3,)
+    """
+
+    T = time - 51544.5
+
+    # GCRSToMEMED (precession)
+    zeta = (pi / (180 * 3600)) * (
+        2.650545
+        + 2306.083227 * (T / 36525)
+        + 0.2988499 * (T / 36525) ** 2
+        + 0.01801828 * (T / 36525) ** 3
+        - 0.000005971 * (T / 36525) ** 4
+        - 0.0000003173 * (T / 36525) ** 5
+    )
+    z = (pi / (180 * 3600)) * (
+        -2.650545
+        + 2306.077181 * (T / 36525)
+        + 1.0927348 * (T / 36525) ** 2
+        + 0.01826837 * (T / 36525) ** 3
+        - 0.000028596 * (T / 36525) ** 4
+        - 0.0000002904 * (T / 36525) ** 5
+    )
+    theta = (pi / (180 * 3600)) * (
+        2004.191903 * (T / 36525)
+        - 0.4294934 * (T / 36525) ** 2
+        - 0.04182264 * (T / 36525) ** 3
+        - 0.000007089 * (T / 36525) ** 4
+        - 0.0000001274 * (T / 36525) ** 5
+    )
+
+    # Apply Scott Wickett's implemetation of the nutation matrix
+    (_, _, _, nutation_matrix) = nutate(time)
+
+    Y = Rz(zeta) @ Ry(-theta) @ Rz(z) @ nutation_matrix.T @ X
+
+    return Y
+
+
+@njit
+def TETEDToTEMED(time, X):
+    """Converts a vector from the True Equator True Equinox of Date (TETED) coordinate frame
+    to True Equator Mean Equinox of Date (MEMED) coordinate frame.
+
+    Args:
+        time (float): Time of coordinate transform, expressed as a Modified Julian Date
+        in the UT1 time system
+        X (NDArray[np.float64]): Vector of shape (3,) to be transformed
+
+    Returns:
+        NDArray[np.float64]: Transformed vector, shape: (3,)
+    """
+
+    #  Apply Scott Wickett's implemetation of the nutation matrix
+    (dpsi, deps, tobl, _) = nutate(time)
+    ang = dpsi * np.cos(tobl - deps)
+
+    #  Combine
+    Y = Rz(ang) @ X
 
     return Y
 

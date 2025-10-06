@@ -6,8 +6,15 @@ from unittest import mock
 import numpy as np
 
 from astroforge.coordinates import (
+    AzElRangeToSEZ,
+    CIRSToGCRS,
     CIRSToMEMED,
     CIRSToTETED,
+    GCRSToCIRS,
+    GCRSToITRS,
+    GCRSToMEMED,
+    GCRSToTETED,
+    ITRSToGCRS,
     ITRSToMEMED,
     ITRSToTIRS,
     ITRSToTETED,
@@ -15,12 +22,15 @@ from astroforge.coordinates import (
     ITRSToSEZ,
     LatLonAltToITRS,
     MEMEDToCIRS,
+    MEMEDToGCRS,
     MEMEDToITRS,
     PosVelConversion,
     PosVelToFPState,
     SEZToAzElRange,
+    TEMEDToTETED,
     TETEDToCIRS,
     TETEDToITRS,
+    TETEDToTEMED,
     TIRSToITRS,
     cartesian_to_keplerian,
     keplerian_to_cartesian,
@@ -45,6 +55,19 @@ _lon = 165.0  # site longitude, degrees
 _alt = 0.0
 
 
+def test_AzElRangeToSEZ():
+    az, el, rho = 293.300527101544, 81.5212743368057, 350.794726517402
+    truth = [-20.4588163762472, -47.5036371832798, 346.960777955177]
+    output = AzElRangeToSEZ(az, el, rho)
+    np.testing.assert_allclose(output, truth)
+
+
+def test_CIRSToGCRS():
+    truth = [-5406.78443800927, 4960.19372187554, 3187.97118594873]
+    xf = CIRSToGCRS(_mjd, _x)
+    np.testing.assert_allclose(xf, truth)
+
+
 def test_CIRSToMEMED():
     truth = [-5435.77773183492, 4935.36501586931, 3177.18312508]
     xf = CIRSToMEMED(_mjd, _x)
@@ -54,6 +77,36 @@ def test_CIRSToMEMED():
 def test_CIRSToTETED():
     truth = [-5435.40930839752, 4935.77076452752, 3177.18312508]
     xf = CIRSToTETED(_mjd, _x)
+    np.testing.assert_allclose(xf, truth)
+
+
+def test_GCRSToCIRS():
+    truth = [-5419.42906248901, 4960.22283836336, 3166.38248329226]
+    xf = GCRSToCIRS(_mjd, _x)
+    np.testing.assert_allclose(xf, truth)
+
+
+def test_GCRSToITRS():
+    truth = [-5266.93950772645, -5121.75206543286, 3166.54448922743]
+    xf = GCRSToITRS(_mjd, _x)
+    np.testing.assert_allclose(xf, truth)
+
+
+def test_GCRSToMEMED():
+    truth = [-5442.08898388933, 4935.35099673898, 3166.38248329069]
+    xf = GCRSToMEMED(_mjd, _x)
+    np.testing.assert_allclose(xf, truth)
+
+
+def test_GCRSToTETED():
+    truth = [-5441.61801638518, 4935.7619646224, 3166.55130898129]
+    xf = GCRSToTETED(_mjd, _x)
+    np.testing.assert_allclose(xf, truth)
+
+
+def test_ITRSToGCRS():
+    truth = [4643.28771341639, 5692.35467856934, 3168.11890936534]
+    xf = ITRSToGCRS(_mjd, _x)
     np.testing.assert_allclose(xf, truth)
 
 
@@ -103,6 +156,12 @@ def test_LatLonAltToITRS():
 def test_MEMEDToCIRS():
     truth = [-5390.34370758831, 4984.94755276745, 3177.18312508]
     xf = MEMEDToCIRS(_mjd, _x)
+    np.testing.assert_allclose(xf, truth)
+
+
+def test_MEMEDToGCRS():
+    truth = [-5384.01102427848, 4984.93261969242, 3187.92598214676]
+    xf = MEMEDToGCRS(_mjd, _x)
     np.testing.assert_allclose(xf, truth)
 
 
@@ -171,6 +230,12 @@ def test_SEZToAzElRange():
     np.testing.assert_allclose(xf, truth)
 
 
+def test_TEMEDToTETED():
+    truth = [-5412.74714872262, 4960.61243132077, 3177.18312508]
+    xf = TEMEDToTETED(_mjd, _x)
+    np.testing.assert_allclose(xf, truth)
+
+
 def test_TETEDToCIRS():
     truth = [-5390.71580203204, 4984.54516796679, 3177.18312508]
     xf = TETEDToCIRS(_mjd, _x)
@@ -186,6 +251,12 @@ def test_TETEDToITRS():
 def test_TIRSToITRS():
     truth = [-5413.1150963132, 4960.20161263041, 3177.19765142128]
     xf = TIRSToITRS(_mjd, _x)
+    np.testing.assert_allclose(xf, truth)
+
+
+def test_TETEDToTEMED():
+    truth = [-5413.48780142449, 4959.80415073088, 3177.18312508]
+    xf = TETEDToTEMED(_mjd, _x)
     np.testing.assert_allclose(xf, truth)
 
 
