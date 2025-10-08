@@ -694,6 +694,10 @@ def ITRSToLatLonAlt(
         lat = np.pi / 2.0
         height = absz - b
 
+    # restore sign of latitude
+    if z < 0:
+        lat = -lat
+
     return lat * 180 / np.pi, lon * 180 / np.pi, height
 
 
